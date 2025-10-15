@@ -61,6 +61,19 @@ class AmbientMixer {
         this.setMasterVolume(volume);
       });
     }
+    // handle main play/pause button
+    if (this.ui.playPauseButton) {
+      this.ui.playPauseButton.addEventListener("click", () => {
+        this.toggleAllSounds();
+      });
+    }
+
+    // handle reset button
+    if (this.ui.resetButton) {
+      this.ui.resetButton.addEventListener("click", () => {
+        this.resetAll();
+      });
+    }
   }
 
   // load a sound file
@@ -94,7 +107,39 @@ class AmbientMixer {
       // update play button icon - sound is now paused
       this.ui.updatePlayPauseButton(soundId, false);
     }
-    return true;
+    // update main play button state
+    this.updateMainPlayButtonState();
+  }
+
+  // toggle allso9und
+  toggleAllSounds() {
+    if (this.soundManager.isPlaying) {
+      this.soundManager.pauseAllSounds();
+      this.ui.updateMainPlayButton(false);
+      soundsData.forEach((sound) => {
+        this.ui.updatePlayPauseButton(sound.id, false);
+      });
+    } else {
+      // toggle play all sounds
+      for (const [soundId, audio] of this.soundManager.audioElements) {
+        const card = document.querySelector(`[data-sound-id="${soundId}"]`);
+        const slider = card ? card.querySelector(".volume-slider") : null;
+        if (slider) {
+          let volume = parseInt(slider.value);
+          if (volume === 0) {
+            volume = 50; // default to 50 if volume is 0
+            slider.value = volume;
+            this.ui.updateVolumeDisplay(soundId, volume);
+          }
+          this.currentSoundState[soundId] = volume;
+          const effectiveVolume = (volume * this.masterVolume) / 100;
+          audio.volume = effectiveVolume / 100;
+          this.ui.updatePlayPauseButton(soundId, true);
+        }
+      }
+      this.soundManager.playAllSounds();
+      this.ui.updateMainPlayButton(true);
+    }
   }
   // set volume for a specific sound
   setSoundVolume(soundId, volume) {
@@ -106,6 +151,8 @@ class AmbientMixer {
       audio.volume = effectiveVolume / 100;
     }
     this.ui.updateVolumeDisplay(soundId, volume);
+    // sync master volume to all playing sounds
+    this.updateMainPlayButtonState();
   }
 
   setMasterVolume(volume) {
@@ -134,6 +181,29 @@ class AmbientMixer {
         }
       }
     }
+  }
+
+  // update main play/pause button
+  updateMainPlayButtonState(isAnyPlaying) {
+    // check if any sound is playing
+    let anySoundsPlaying = false;
+    for (const [soundId, audio] of this.soundManager.audioElements) {
+      if (!audio.paused) {
+        anySoundsPlaying = true;
+        break;
+      }
+    }
+    // update main play button icon
+    this.soundManager.isPlaying = anySoundsPlaying;
+    this.ui.updateMainPlayButton(anySoundsPlaying);
+  }
+
+  // reset all ui elements
+  resetAll() {
+    this.soundManager.stopAllSounds();
+    this.masterVolume = 100;
+    this.ui.resetUI();
+    console.log("Reset all UI elements and stopped all sounds.");
   }
 }
 

@@ -17,12 +17,12 @@ export class UI {
     this.soundCardsContainer = document.querySelector("section.grid");
     this.masterVolumeSlider = document.getElementById("masterVolume");
     this.masterVolumeValue = document.getElementById("masterVolumeValue");
-    this.playPauseButton = document.getElementById("playPauseButton");
-    this.resetButton = document.getElementById("resetButton");
+    this.playPauseButton = document.getElementById("playPauseAll");
+    this.resetButton = document.getElementById("resetAll");
     this.modal = document.getElementById("savePresetModal");
     this.customPresetsContainer = document.getElementById("customPresets");
     this.timerDisplay = document.getElementById("timerDisplay");
-    this.timerSelector = document.getElementById("timerSelector");
+    this.timerSelector = document.getElementById("timerSelect");
     this.themeToggle = document.getElementById("themeToggle");
   }
 
@@ -124,5 +124,53 @@ export class UI {
         slider.value = volume;
       }
     }
+  }
+
+  // update play all
+  updateMainPlayButton(isAnyPlaying) {
+    if (!this.playPauseButton) return;
+    const icon = this.playPauseButton.querySelector("i");
+    const label = this.playPauseButton.querySelector("span");
+    if (!icon || !label) return;
+
+    if (isAnyPlaying) {
+      icon.classList.remove("fa-play");
+      icon.classList.add("fa-pause");
+      label.textContent = "Pause All";
+    } else {
+      icon.classList.remove("fa-pause");
+      icon.classList.add("fa-play");
+      label.textContent = "Play All";
+    }
+  }
+
+  // reset all ui elements
+  resetUI() {
+    // reset the sliders
+    const sliders = document.querySelectorAll(".volume-slider");
+    sliders.forEach((slider) => {
+      slider.value = 0;
+      const soundId = slider.dataset.sound;
+      this.updateVolumeDisplay(soundId, 0);
+    });
+    // reset all play buttons
+    const playButtons = document.querySelectorAll(".play-btn");
+    playButtons.forEach((btn) => {
+      const icon = btn.querySelector("i");
+      icon.classList.remove("fa-pause");
+      icon.classList.add("fa-play");
+    });
+
+    // remove playing class from all cards
+    const cards = document.querySelectorAll(".sound-card");
+    cards.forEach((card) => {
+      card.classList.remove("playing");
+    });
+
+    // reset main play button
+    this.updateMainPlayButton(false);
+    // reset master volume
+    this.masterVolumeSlider.value = 100;
+    this.masterVolumeValue.textContent = "100%";
   }
 }

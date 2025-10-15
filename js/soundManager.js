@@ -29,7 +29,6 @@ export class SoundManager {
     if (audio) {
       try {
         await audio.play();
-        this.isPlaying = true;
         return true;
       } catch (error) {
         console.error(`Error playing sound ${soundId}:`, error);
@@ -42,8 +41,18 @@ export class SoundManager {
     const audio = this.audioElements.get(soundId);
     if (audio && audio.paused === false) {
       audio.pause();
-      this.isPlaying = false;
     }
+  }
+
+  // stop all sounds and reset to start
+  stopAllSounds() {
+    for (const [soundId, audio] of this.audioElements) {
+      if (audio && audio.paused === false) {
+        audio.pause();
+      }
+      audio.currentTime = 0; // reset to start
+    }
+    this.isPlaying = false;
   }
 
   // set the audio volume for a sound by id
@@ -57,5 +66,25 @@ export class SoundManager {
     audio.volume = volume / 100;
     console.log(`Set volume for sound: ${soundId} to ${volume}`);
     return true;
+  }
+
+  // play all sounds
+  playAllSounds() {
+    for (const [soundId, audio] of this.audioElements) {
+      if (audio.paused) {
+        audio.play();
+      }
+    }
+    this.isPlaying = true;
+  }
+
+  // pause all sounds
+  pauseAllSounds() {
+    for (const [soundId, audio] of this.audioElements) {
+      if (!audio.paused) {
+        audio.pause();
+      }
+    }
+    this.isPlaying = false;
   }
 }
