@@ -59,12 +59,12 @@ export class SoundManager {
   setVolume(soundId, volume) {
     const audio = this.audioElements.get(soundId);
     if (!audio) {
-      console.log(`Set volume for sound: ${soundId} to ${volume}`);
+      // console.log(`Set volume for sound: ${soundId} to ${volume}`);
       return false;
     }
     // convert volume from 0-100 to 0.0-1.0
     audio.volume = volume / 100;
-    console.log(`Set volume for sound: ${soundId} to ${volume}`);
+    // console.log(`Set volume for sound: ${soundId} to ${volume}`);
     return true;
   }
 

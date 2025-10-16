@@ -173,4 +173,43 @@ export class UI {
     this.masterVolumeSlider.value = 100;
     this.masterVolumeValue.textContent = "100%";
   }
+
+  // show save preset modal
+  showModal() {
+    if (this.modal) {
+      this.modal.classList.remove("hidden");
+      this.modal.classList.add("flex");
+      document.getElementById("presetName").focus();
+    }
+  }
+
+  // hide save preset modal
+  hideModal() {
+    if (this.modal) {
+      this.modal.classList.remove("flex");
+      this.modal.classList.add("hidden");
+      document.getElementById("presetName").value = "";
+    }
+  }
+
+  // render all custom presets from an object map {id: {name, sounds}}
+  renderCustomPresets(customPresets) {
+    if (!this.customPresetsContainer) return;
+    this.customPresetsContainer.innerHTML = "";
+    Object.entries(customPresets).forEach(([id, preset]) => {
+      this.addCustomPresetButton(id, preset);
+    });
+  }
+
+  // append a single custom preset button
+  addCustomPresetButton(id, preset) {
+    if (!this.customPresetsContainer) return;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className =
+      "custom-preset-btn bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-300";
+    btn.dataset.presetId = id;
+    btn.innerHTML = `<i class="fas fa-bookmark mr-2"></i>${preset.name}`;
+    this.customPresetsContainer.appendChild(btn);
+  }
 }
